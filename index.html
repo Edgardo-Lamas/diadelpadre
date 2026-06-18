@@ -595,6 +595,26 @@ a { text-decoration: none; color: inherit; }
   letter-spacing: 0.05em;
 }
 
+.footer-attribution {
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  color: var(--on-surface-variant);
+  opacity: 0.3;
+  letter-spacing: 0.03em;
+  margin-top: 4px;
+}
+
+.footer-attribution a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.footer-attribution a:hover {
+  opacity: 0.8;
+}
+
 /* ============================================
    ANIMATIONS — Fade & Reveal
    ============================================ */
@@ -917,6 +937,9 @@ a { text-decoration: none; color: inherit; }
     <a href="javascript:void(0)">Sitio web</a>
   </div>
   <p class="footer-copy">© 2026 Sabiduría para el Corazón</p>
+  <p class="footer-attribution">
+    Música: <a href="https://pixabay.com/es/users/gregorquendel-19912121/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=239125" target="_blank" rel="noopener">Gregor Quendel</a> / <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=239125" target="_blank" rel="noopener">Pixabay</a>
+  </p>
 </footer>
 
 <!-- ======================== JAVASCRIPT ======================== -->
@@ -1203,90 +1226,47 @@ a { text-decoration: none; color: inherit; }
     });
   }
 
-  // ========== WEB AUDIO — Ambient Pad ==========
-  let audioContext = null;
+  // ========== AUDIO — Amazing Grace (Gregor Quendel / Pixabay) ==========
+  const ambientAudio = new Audio('audios/gregorquendel-amazing-grace-william-walker-version-1835-arranged-for-piano-239125.mp3');
+  ambientAudio.loop = true;
+  ambientAudio.volume = 0;
   let audioPlaying = false;
-  let gainNode = null;
-  let oscillators = [];
+  let fadeInterval = null;
 
   function initAudio() {
     const btn = document.getElementById('btn-audio');
-    
     btn.addEventListener('click', () => {
       if (audioPlaying) {
-        stopAudio();
+        fadeAudio('out');
         btn.classList.remove('active');
         btn.querySelector('.material-symbols-outlined').textContent = 'music_off';
+        audioPlaying = false;
       } else {
-        startAudio();
+        fadeAudio('in');
         btn.classList.add('active');
         btn.querySelector('.material-symbols-outlined').textContent = 'music_note';
+        audioPlaying = true;
       }
     });
   }
 
-  function startAudio() {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    gainNode = audioContext.createGain();
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.06, audioContext.currentTime + 3);
-    gainNode.connect(audioContext.destination);
+  function fadeAudio(direction) {
+    clearInterval(fadeInterval);
+    const target = direction === 'in' ? 0.55 : 0;
+    const step = direction === 'in' ? 0.02 : -0.02;
 
-    // Create warm ambient pad with multiple detuned oscillators
-    const baseFreq = 130.81; // C3
-    const frequencies = [baseFreq, baseFreq * 1.5, baseFreq * 2, baseFreq * 2.5, baseFreq * 3];
-    const detunes = [-8, 5, -3, 7, -5];
-
-    frequencies.forEach((freq, i) => {
-      const osc = audioContext.createOscillator();
-      const oscGain = audioContext.createGain();
-      const filter = audioContext.createBiquadFilter();
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, audioContext.currentTime);
-      osc.detune.setValueAtTime(detunes[i], audioContext.currentTime);
-      
-      // Slow LFO for movement
-      const lfo = audioContext.createOscillator();
-      const lfoGain = audioContext.createGain();
-      lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(0.1 + i * 0.03, audioContext.currentTime);
-      lfoGain.gain.setValueAtTime(3, audioContext.currentTime);
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
-      lfo.start();
-      
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(800 - i * 100, audioContext.currentTime);
-      filter.Q.setValueAtTime(1, audioContext.currentTime);
-      
-      oscGain.gain.setValueAtTime(0.15 / (i + 1), audioContext.currentTime);
-      
-      osc.connect(filter);
-      filter.connect(oscGain);
-      oscGain.connect(gainNode);
-      osc.start();
-      
-      oscillators.push({ osc, lfo, oscGain, filter });
-    });
-
-    audioPlaying = true;
-  }
-
-  function stopAudio() {
-    if (gainNode) {
-      gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1.5);
-      setTimeout(() => {
-        oscillators.forEach(({ osc, lfo }) => {
-          osc.stop();
-          lfo.stop();
-        });
-        oscillators = [];
-        audioContext.close();
-        audioContext = null;
-      }, 1600);
+    if (direction === 'in') {
+      ambientAudio.play().catch(() => {});
     }
-    audioPlaying = false;
+
+    fadeInterval = setInterval(() => {
+      let vol = Math.min(Math.max(ambientAudio.volume + step, 0), 0.55);
+      ambientAudio.volume = vol;
+      if (vol === target) {
+        clearInterval(fadeInterval);
+        if (direction === 'out') ambientAudio.pause();
+      }
+    }, 80);
   }
 
   // ========== WEB SHARE API ==========
