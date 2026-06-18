@@ -99,7 +99,6 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y proximity;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -110,7 +109,6 @@ body {
   font-size: 16px;
   line-height: 1.5;
   overflow-x: hidden;
-  transition: background-color 0.8s ease;
 }
 
 ::selection { background: rgba(255, 213, 152, 0.3); }
@@ -176,7 +174,6 @@ a { text-decoration: none; color: inherit; }
    SECTIONS
    ============================================ */
 .section {
-  scroll-snap-align: start;
   min-height: 100vh;
   width: 100%;
   position: relative;
@@ -194,9 +191,10 @@ a { text-decoration: none; color: inherit; }
   background-size: cover;
   background-position: center;
   z-index: 0;
-  will-change: transform;
-  transition: transform 0.15s ease-out;
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.2s ease-out;
 }
+.section-bg.loaded { opacity: 1; }
 
 .section-overlay {
   position: absolute;
@@ -263,10 +261,8 @@ a { text-decoration: none; color: inherit; }
    GLASS PANEL
    ============================================ */
 .glass-panel {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  background: rgba(24, 27, 46, 0.45);
-  border: 1px solid rgba(255, 213, 152, 0.1);
+  background: rgba(12, 15, 32, 0.88);
+  border: 1px solid rgba(255, 213, 152, 0.12);
   border-radius: var(--radius-lg);
   padding: clamp(32px, 5vw, 64px);
   max-width: 720px;
@@ -274,10 +270,8 @@ a { text-decoration: none; color: inherit; }
 }
 
 .glass-panel--light {
-  background: rgba(255, 255, 255, 0.6);
-  border-color: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(245, 238, 224, 0.96);
+  border-color: rgba(255, 255, 255, 0.5);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
 }
 
@@ -511,9 +505,7 @@ a { text-decoration: none; color: inherit; }
   height: 44px;
   border-radius: 50%;
   border: 1px solid rgba(255, 213, 152, 0.2);
-  background: rgba(15, 18, 37, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(15, 18, 37, 0.92);
   color: var(--on-surface-variant);
   display: flex;
   align-items: center;
@@ -549,9 +541,7 @@ a { text-decoration: none; color: inherit; }
   justify-content: space-between;
   align-items: center;
   padding: 20px var(--margin-mobile);
-  background: rgba(10, 13, 31, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(10, 13, 31, 0.98);
   border-top: 1px solid rgba(79, 69, 56, 0.2);
   flex-wrap: wrap;
   gap: 16px;
@@ -651,6 +641,19 @@ a { text-decoration: none; color: inherit; }
   margin-top: 24px;
   opacity: 0.6;
 }
+
+/* ============================================
+   SECTION FALLBACK COLORS (evita franja blanca mientras carga imagen)
+   ============================================ */
+#hero       { background-color: #0f1225; }
+#transition { background-color: #1c1929; }
+#compassion { background-color: #3D3424; }
+#faithful   { background-color: #3D3424; }
+#discipline { background-color: #a07c30; }
+#provider   { background-color: #b88c3a; }
+#guide      { background-color: #c8a050; }
+#just       { background-color: #dfc070; }
+#climax     { background-color: #ede4cc; }
 
 /* ============================================
    SECTION COLOR THEMES
@@ -881,7 +884,7 @@ a { text-decoration: none; color: inherit; }
 <!-- ======================== 9. CLÍMAX ======================== -->
 <section class="section" id="climax" data-theme="full-light" data-bg="images/climax.jpg">
   <div class="section-bg"></div>
-  <div class="section-overlay" style="background: rgba(251,243,225,0.35); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);"></div>
+  <div class="section-overlay" style="background: rgba(251,243,225,0.35);"></div>
   <div class="section-content">
     <div class="glass-panel glass-panel--light">
       <h2 class="display-lg anim-fade" style="color: var(--on-secondary-fixed); margin-bottom: 24px;">
@@ -929,13 +932,19 @@ a { text-decoration: none; color: inherit; }
           const section = entry.target;
           const bg = section.querySelector('.section-bg');
           const imgUrl = section.dataset.bg;
-          if (bg && imgUrl && !bg.style.backgroundImage) {
-            bg.style.backgroundImage = `url('${imgUrl}')`;
+          if (bg && imgUrl && !bg.dataset.loaded) {
+            bg.dataset.loaded = '1';
+            const img = new Image();
+            img.onload = () => {
+              bg.style.backgroundImage = `url('${imgUrl}')`;
+              bg.classList.add('loaded');
+            };
+            img.src = imgUrl;
           }
           observer.unobserve(section);
         }
       });
-    }, { rootMargin: '400px 0px' });
+    }, { rootMargin: '800px 0px' });
 
     document.querySelectorAll('.section[data-bg]').forEach(s => observer.observe(s));
   }
@@ -1012,21 +1021,8 @@ a { text-decoration: none; color: inherit; }
   // ========== PARALLAX (JS-based, works on iOS) ==========
   function initParallax() {
     const sections = document.querySelectorAll('.section');
-    
-    // Mouse parallax (desktop)
-    document.addEventListener('mousemove', (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 20;
-      const y = (e.clientY / window.innerHeight - 0.5) * 20;
 
-      sections.forEach(section => {
-        const bg = section.querySelector('.section-bg');
-        if (bg && isElementInViewport(section)) {
-          bg.style.transform = `scale(1.12) translate(${x}px, ${y}px)`;
-        }
-      });
-    }, { passive: true });
-
-    // Scroll parallax — only process sections near viewport
+    // Scroll parallax — solo secciones visibles
     let ticking = false;
     window.addEventListener('scroll', () => {
       if (!ticking) {
@@ -1037,8 +1033,7 @@ a { text-decoration: none; color: inherit; }
             if (bg) {
               const rect = section.getBoundingClientRect();
               const scrolled = rect.top / window.innerHeight;
-              const moveY = scrolled * 30;
-              bg.style.transform = `scale(1.12) translateY(${moveY}px)`;
+              bg.style.transform = `scale(1.08) translateY(${scrolled * 20}px)`;
             }
           });
           ticking = false;
@@ -1114,7 +1109,8 @@ a { text-decoration: none; color: inherit; }
     const canvas = document.getElementById('particles');
     const ctx = canvas.getContext('2d');
     let particles = [];
-    const PARTICLE_COUNT = window.innerWidth < 768 ? 20 : 50;
+    let animRunning = true;
+    const PARTICLE_COUNT = window.innerWidth < 768 ? 12 : 25;
 
     function resize() {
       canvas.width = window.innerWidth;
@@ -1141,7 +1137,13 @@ a { text-decoration: none; color: inherit; }
       }
     }
 
+    document.addEventListener('visibilitychange', () => {
+      animRunning = !document.hidden;
+      if (animRunning) animate();
+    });
+
     function animate() {
+      if (!animRunning) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       particles.forEach(p => {
