@@ -697,18 +697,18 @@ a { text-decoration: none; color: inherit; }
 .footer-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--primary);
 }
 
-.footer-brand .material-symbols-outlined {
-  font-size: 22px;
+.footer-logo {
+  height: 30px;
+  width: auto;
+  display: block;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
 }
 
-.footer-brand span:last-child {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 500;
+.footer-brand a:hover .footer-logo {
+  opacity: 1;
 }
 
 .footer-links {
@@ -1102,8 +1102,9 @@ a { text-decoration: none; color: inherit; }
 <!-- ======================== FOOTER ======================== -->
 <footer class="site-footer">
   <div class="footer-brand">
-    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
-    <span>Sabiduría para el Corazón</span>
+    <a href="https://sabiduriaparaelcorazon.com/" target="_blank" rel="noopener" aria-label="Sabiduría para el Corazón">
+      <img src="https://sabiduriaparaelcorazon.com/img/logo/logo-navbar.svg" alt="Sabiduría para el Corazón" class="footer-logo">
+    </a>
   </div>
   <div class="footer-links">
     <a href="https://www.youtube.com/@SabiduriaparaelCorazon-322" target="_blank" rel="noopener">YouTube</a>
