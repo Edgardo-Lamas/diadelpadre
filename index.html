@@ -187,12 +187,23 @@ a { text-decoration: none; color: inherit; }
 
 .section-bg {
   position: absolute;
-  inset: -60px;
+  inset: 0;
   background-size: cover;
-  background-position: center;
+  background-position: center center;
   z-index: 0;
   opacity: 0;
   transition: opacity 0.7s ease;
+  transform-origin: center center;
+  will-change: transform;
+  animation-play-state: paused;
+}
+.section-bg.kb-active {
+  animation: kenburns 12s ease-in-out infinite alternate;
+  animation-play-state: running;
+}
+@keyframes kenburns {
+  from { transform: scale(1);    }
+  to   { transform: scale(1.12); }
 }
 .section-bg.loaded { opacity: 1; }
 
@@ -270,9 +281,9 @@ a { text-decoration: none; color: inherit; }
 }
 
 .glass-panel--light {
-  background: rgba(245, 238, 224, 0.96);
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  background: rgba(240, 228, 200, 0.12);
+  border-color: rgba(200, 160, 80, 0.25);
+  box-shadow: none;
 }
 
 /* ============================================
@@ -314,12 +325,17 @@ a { text-decoration: none; color: inherit; }
 .verse-card {
   margin: 0 auto;
   padding: clamp(28px, 4vw, 56px);
-  background: rgba(0, 0, 0, 0.42);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(8, 6, 2, 0.38);
+  border: 1px solid rgba(255, 213, 152, 0.28);
   border-radius: var(--radius-lg);
   max-width: 1100px;
   text-align: center;
 }
+.verse-card .display-lg,
+.verse-card .verse-text { color: #ffffff !important; text-shadow: 0 1px 6px rgba(0,0,0,0.6); }
+.verse-card .citation-seal,
+.verse-card .verse-toggle,
+.verse-card .reflection-text { color: rgba(255, 213, 152, 0.85) !important; }
 
 @media (min-width: 768px) {
   .verse-card {
@@ -728,7 +744,7 @@ a { text-decoration: none; color: inherit; }
 #provider   { background-color: #b88c3a; }
 #guide      { background-color: #c8a050; }
 #just       { background-color: #dfc070; }
-#climax     { background-color: #ede4cc; }
+#climax     { background-color: #b8924a; }
 
 /* ============================================
    SECTION COLOR THEMES
@@ -792,7 +808,7 @@ a { text-decoration: none; color: inherit; }
 <!-- ======================== 1. HERO ======================== -->
 <section class="section section--hero" id="hero" data-theme="night" data-bg="images/hero.jpg">
   <div class="section-bg"></div>
-  <div class="section-overlay" style="background: rgba(15,18,37,0.78)"></div>
+  <div class="section-overlay" style="background: rgba(15,18,37,0.60)"></div>
   <div class="section-content">
     <h1 class="display-lg text-reveal anim-fade" style="color: var(--primary); font-style: italic;">
       Hoy pensaste en tu padre.
@@ -809,7 +825,7 @@ a { text-decoration: none; color: inherit; }
 <!-- ======================== 2. TRANSICIÓN ======================== -->
 <section class="section" id="transition" data-theme="dawn" data-bg="images/transition.jpg">
   <div class="section-bg"></div>
-  <div class="section-overlay" style="background: linear-gradient(to bottom, rgba(15,18,37,0.85), rgba(61,52,36,0.8))"></div>
+  <div class="section-overlay" style="background: linear-gradient(to bottom, rgba(15,18,37,0.65), rgba(61,52,36,0.55))"></div>
   <div class="section-content">
     <h2 class="headline-md text-reveal anim-fade" style="color: var(--secondary); font-style: italic;">
       Y lo viste humano.
@@ -1113,38 +1129,28 @@ a { text-decoration: none; color: inherit; }
     });
   }
 
-  // ========== PARALLAX (JS-based, works on iOS) ==========
-  function initParallax() {
-    const sections = document.querySelectorAll('.section');
-
-    function applyParallax() {
-      sections.forEach(section => {
-        if (!isElementInViewport(section)) return;
-        const bg = section.querySelector('.section-bg');
-        if (bg) {
-          const rect = section.getBoundingClientRect();
-          const scrolled = rect.top / window.innerHeight;
-          bg.style.transform = `scale(1.1) translateY(${scrolled * 28}px)`;
+  // ========== KEN BURNS (zoom lento sobre imagen de fondo) ==========
+  function initKenBurns() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const bg = entry.target.querySelector('.section-bg');
+        if (!bg) return;
+        if (entry.isIntersecting) {
+          bg.classList.add('kb-active');
+        } else {
+          bg.classList.remove('kb-active');
+          bg.style.animation = 'none';
+          bg.offsetHeight; // force reflow
+          bg.style.animation = '';
         }
       });
-    }
+    }, { threshold: 0.15 });
 
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        requestAnimationFrame(() => { applyParallax(); ticking = false; });
-        ticking = true;
-      }
-    }, { passive: true });
-
-    // Ejecutar en carga inicial también
-    applyParallax();
+    document.querySelectorAll('.section').forEach(s => observer.observe(s));
   }
 
-  function isElementInViewport(el) {
-    const rect = el.getBoundingClientRect();
-    return rect.top < window.innerHeight && rect.bottom > 0;
-  }
+
 
   // ========== SCROLL INDICATOR ==========
   function initScrollIndicator() {
@@ -1485,7 +1491,7 @@ a { text-decoration: none; color: inherit; }
     prepareTextReveal();
     initPreloader();
     initScrollAnimations();
-    initParallax();
+    initKenBurns();
     initScrollIndicator();
     initProgressiveColor();
     initParticles();
