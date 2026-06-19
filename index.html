@@ -575,6 +575,58 @@ a { text-decoration: none; color: inherit; }
   gap: 12px;
 }
 
+/* ============================================
+   JOURNEY DOTS
+   ============================================ */
+.journey-dots {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.journey-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 213, 152, 0.28);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  padding: 0;
+}
+.journey-dot:hover,
+.journey-dot.active {
+  background: var(--primary);
+  transform: scale(1.5);
+  box-shadow: 0 0 8px rgba(232, 184, 109, 0.5);
+}
+.journey-dot::before {
+  content: attr(data-label);
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-size: 11px;
+  font-family: var(--font-body);
+  color: var(--primary);
+  background: rgba(15, 18, 37, 0.92);
+  border: 1px solid rgba(232, 184, 109, 0.2);
+  padding: 3px 9px;
+  border-radius: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.journey-dot:hover::before { opacity: 1; }
+@media (max-width: 767px) { .journey-dots { display: none; } }
+
 .floating-btn {
   width: 44px;
   height: 44px;
@@ -604,6 +656,22 @@ a { text-decoration: none; color: inherit; }
 
 .floating-btn .material-symbols-outlined {
   font-size: 20px;
+}
+.floating-btn--labeled {
+  flex-direction: column;
+  width: auto;
+  height: auto;
+  padding: 8px 12px;
+  border-radius: 22px;
+  gap: 2px;
+}
+.floating-btn--labeled .btn-label {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  line-height: 1;
+  font-family: var(--font-body);
 }
 
 /* ============================================
@@ -801,13 +869,27 @@ a { text-decoration: none; color: inherit; }
 
 <!-- ======================== FLOATING CONTROLS ======================== -->
 <div class="floating-controls">
-  <button class="floating-btn" id="btn-audio" title="Activar música ambiental" aria-label="Activar música ambiental">
+  <button class="floating-btn floating-btn--labeled" id="btn-audio" title="Activar música ambiental" aria-label="Activar música ambiental">
     <span class="material-symbols-outlined">music_off</span>
+    <span class="btn-label">Música</span>
   </button>
   <button class="floating-btn" id="btn-share" title="Compartir" aria-label="Compartir esta página">
     <span class="material-symbols-outlined">share</span>
   </button>
 </div>
+
+<!-- ======================== JOURNEY DOTS ======================== -->
+<nav class="journey-dots" aria-label="Navegación del recorrido">
+  <button class="journey-dot active" data-target="hero"       data-label="Inicio"        aria-label="Ir al inicio"></button>
+  <button class="journey-dot"        data-target="transition" data-label="Prólogo"        aria-label="Prólogo"></button>
+  <button class="journey-dot"        data-target="compassion" data-label="Compasivo"      aria-label="Padre compasivo"></button>
+  <button class="journey-dot"        data-target="faithful"   data-label="Fiel"           aria-label="Padre fiel"></button>
+  <button class="journey-dot"        data-target="discipline" data-label="Disciplinador"  aria-label="Padre disciplinador"></button>
+  <button class="journey-dot"        data-target="provider"   data-label="Proveedor"      aria-label="Padre proveedor"></button>
+  <button class="journey-dot"        data-target="guide"      data-label="Guía"           aria-label="Padre guía"></button>
+  <button class="journey-dot"        data-target="just"       data-label="Justo"          aria-label="Padre justo"></button>
+  <button class="journey-dot"        data-target="climax"     data-label="Invitación"     aria-label="Invitación final"></button>
+</nav>
 
 <!-- ======================== 1. HERO ======================== -->
 <section class="section section--hero" id="hero" data-theme="night" data-bg="images/hero.jpg">
@@ -1165,12 +1247,31 @@ a { text-decoration: none; color: inherit; }
   function initScrollIndicator() {
     const indicator = document.getElementById('scroll-indicator');
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 100) {
-        indicator.classList.add('hidden');
-      } else {
-        indicator.classList.remove('hidden');
-      }
+      indicator.classList.toggle('hidden', window.scrollY > 100);
     }, { passive: true });
+  }
+
+  // ========== JOURNEY DOTS ==========
+  function initJourneyDots() {
+    const dots = document.querySelectorAll('.journey-dot');
+
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        const target = document.getElementById(dot.dataset.target);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          dots.forEach(dot => dot.classList.toggle('active', dot.dataset.target === id));
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.section').forEach(s => observer.observe(s));
   }
 
   // ========== PROGRESSIVE BACKGROUND COLOR ==========
@@ -1502,6 +1603,7 @@ a { text-decoration: none; color: inherit; }
     initScrollAnimations();
     initKenBurns();
     initScrollIndicator();
+    initJourneyDots();
     initProgressiveColor();
     initParticles();
     initVerseToggles();
