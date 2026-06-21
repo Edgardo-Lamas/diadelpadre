@@ -852,6 +852,200 @@ a { text-decoration: none; color: inherit; }
   .section-bg { transition: opacity 0.3s ease !important; }
   .verse-panel, .verse-card { transition: none !important; }
   #particles { display: none !important; }
+  .spc-invite__inner { transition: none !important; }
+}
+
+/* ============================================
+   SPC — SABIDURÍA PARA EL CORAZÓN INVITE
+   ============================================ */
+.spc-invite {
+  position: relative;
+  z-index: 50;
+  padding: clamp(60px, 10vw, 120px) var(--margin-mobile);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 50%, rgba(160, 100, 20, 0.22) 0%, transparent 68%),
+    radial-gradient(ellipse 50% 35% at 50% 50%, rgba(232, 184, 109, 0.10) 0%, transparent 55%),
+    linear-gradient(
+      180deg,
+      #07090f 0%,
+      #110d06 28%,
+      #1c1408 48%,
+      #110d06 72%,
+      #07090f 100%
+    );
+  overflow: hidden;
+  text-align: center;
+}
+
+.spc-invite::before,
+.spc-invite::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(232, 184, 109, 0.18) 30%, rgba(232, 184, 109, 0.35) 50%, rgba(232, 184, 109, 0.18) 70%, transparent 100%);
+  pointer-events: none;
+}
+.spc-invite::before { top: 0; }
+.spc-invite::after  { bottom: 0; }
+
+@media (min-width: 768px) {
+  .spc-invite { padding: clamp(80px, 10vw, 140px) var(--margin-desktop); }
+}
+
+.spc-invite__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 184, 109, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  animation: spcGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes spcGlow {
+  0%   { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+}
+
+.spc-invite__inner {
+  position: relative;
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.spc-invite__badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(232, 184, 109, 0.12);
+  border: 1px solid rgba(232, 184, 109, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.spc-invite__badge .material-symbols-outlined {
+  font-size: 28px;
+  color: var(--primary);
+}
+
+.spc-invite__title {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+
+.spc-invite__desc {
+  font-family: var(--font-body);
+  font-size: clamp(14px, 1.8vw, 16px);
+  line-height: 1.75;
+  color: var(--on-surface-variant);
+  max-width: 580px;
+  margin-bottom: 32px;
+}
+
+.spc-invite__desc strong {
+  color: var(--primary-fixed);
+  font-weight: 600;
+}
+
+.spc-invite__features {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.spc-invite__feature {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 213, 152, 0.15);
+  background: rgba(255, 213, 152, 0.06);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--on-surface-variant);
+  letter-spacing: 0.02em;
+  transition: all 0.3s ease;
+}
+
+.spc-invite__feature:hover {
+  border-color: rgba(255, 213, 152, 0.35);
+  background: rgba(255, 213, 152, 0.1);
+  color: var(--primary-fixed);
+}
+
+.spc-invite__feature .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--primary-container);
+}
+
+.spc-invite__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 36px;
+  background: rgba(232, 184, 109, 0.1);
+  border: 1px solid rgba(232, 184, 109, 0.3);
+  border-radius: 100px;
+  color: var(--primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.spc-invite__cta:hover {
+  background: rgba(232, 184, 109, 0.2);
+  border-color: var(--primary-container);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(232, 184, 109, 0.2);
+}
+
+.spc-invite__logo {
+  height: 24px;
+  width: auto;
+  filter: brightness(1.2);
+}
+
+.spc-invite__arrow {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.spc-invite__cta:hover .spc-invite__arrow {
+  transform: translateX(4px);
+}
+
+@media (max-width: 480px) {
+  .spc-invite__feature {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+  .spc-invite__cta {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 14px 24px;
+    font-size: 13px;
+  }
 }
 </style>
 </head>
@@ -1099,6 +1293,41 @@ a { text-decoration: none; color: inherit; }
   </div>
 </section>
 
+<!-- ======================== INVITACIÓN SABIDURÍA PARA EL CORAZÓN ======================== -->
+<section class="spc-invite" id="spc-invite">
+  <div class="spc-invite__glow" aria-hidden="true"></div>
+  <div class="spc-invite__inner">
+    <div class="spc-invite__badge anim-fade">
+      <span class="material-symbols-outlined">auto_stories</span>
+    </div>
+    <h2 class="spc-invite__title anim-fade anim-delay-1">
+      ¿Quieres seguir profundizando<br>en la Palabra de Dios?
+    </h2>
+    <p class="spc-invite__desc anim-fade anim-delay-2">
+      <strong>Sabiduría para el Corazón</strong> es un ministerio dedicado a enseñar la Palabra de Dios de manera clara, fiel y aplicable a la vida diaria. Aquí encontrarás devocionales, estudios bíblicos, sermones, y recursos de teología reformada que fortalecerán tu fe y alimentarán tu alma.
+    </p>
+    <div class="spc-invite__features anim-fade anim-delay-2">
+      <div class="spc-invite__feature">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span>Devocionales diarios</span>
+      </div>
+      <div class="spc-invite__feature">
+        <span class="material-symbols-outlined">church</span>
+        <span>Estudios bíblicos</span>
+      </div>
+      <div class="spc-invite__feature">
+        <span class="material-symbols-outlined">headphones</span>
+        <span>Sermones y podcast</span>
+      </div>
+    </div>
+    <a class="spc-invite__cta anim-fade anim-delay-3" href="https://sabiduriaparaelcorazon.com/" target="_blank" rel="noopener" id="cta-spc">
+      <img src="https://sabiduriaparaelcorazon.com/img/logo/logo-navbar.svg" alt="Sabiduría para el Corazón" class="spc-invite__logo">
+      <span>Visitar Sabiduría para el Corazón</span>
+      <span class="material-symbols-outlined spc-invite__arrow">arrow_forward</span>
+    </a>
+  </div>
+</section>
+
 <!-- ======================== FOOTER ======================== -->
 <footer class="site-footer">
   <div class="footer-brand">
@@ -1213,6 +1442,10 @@ a { text-decoration: none; color: inherit; }
         observer.observe(section);
       }
     });
+
+    // Also observe the SPC invite section
+    const spcInvite = document.querySelector('.spc-invite');
+    if (spcInvite) observer.observe(spcInvite);
   }
 
   // ========== KEN BURNS (zoom lento sobre imagen de fondo) ==========
